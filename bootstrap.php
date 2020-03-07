@@ -5,7 +5,9 @@ use GuzzleHttp\Client;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Adapter\Local;
 
-$client = new Client(['base_url' => 'https://coursehunter.net']);
+define('BASE_URL', 'https://coursehunter.net');
+
+$client = new Client(['base_url' => BASE_URL]);
 $adapter = new Local(__DIR__.'/Downloads');
 $filesystem = new FileSystem($adapter);
 
