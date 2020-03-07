@@ -1,0 +1,13 @@
+{
+    "name": "amirrezam75/coursehunter-downloader",
+    "description": "coursehunter.net downloader",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Amir Reza Mehrbakhsh",
+            "email": "amirreza@dakyaco.com"
+        }
+    ],
+    "require": {}
+}
