@@ -55,7 +55,7 @@ class Downloader
         Utility::box('Downloading');
 
         foreach ($onlineCourseEpisodes[$wantedCourse] as $episode) {
-            if (! in_array($episode['number'], $localCourses[$wantedCourse])) {
+            if (!isset($localCourses[$wantedCourse]) or ! in_array($episode['number'], $localCourses[$wantedCourse])) {
                 $this->resolver->download($episode, $wantedCourse);
             }
         }
