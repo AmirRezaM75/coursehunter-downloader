@@ -50,6 +50,8 @@ class Downloader
 
         $onlineCourseEpisodes = $this->coursehunter->courseEpisodes($wantedCourse);
 
+        $this->system->createFolderIfNotExists($wantedCourse);
+
         Utility::box('Downloading');
 
         foreach ($onlineCourseEpisodes[$wantedCourse] as $episode) {
