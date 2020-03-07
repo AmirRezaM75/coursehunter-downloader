@@ -20,7 +20,9 @@ class Controller
     {
         $html = $this->getCourseHTML($course);
 
-        return Parser::getEpisodesArray($html);
+        $array[$course] = Parser::getEpisodesArray($html);
+
+        return $array;
     }
 
     public function getCourseHTML($course) {

@@ -15,11 +15,12 @@ class Controller
 
     /**
      * Get all local courses [name => [0,1,2]]
-     * 
+     *
      * @return array
      */
     public function courses()
     {
+        //TODO: cache result
         $contents = $this->filesystem->listContents(null, true);
 
         $array = [];
@@ -35,5 +36,12 @@ class Controller
         }
 
         return $array;
+    }
+
+    public function createFolderIfNotExists($folder)
+    {
+        if (! $this->filesystem->has($folder)) {
+            $this->filesystem->createDir($folder);
+        }
     }
 }

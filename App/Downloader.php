@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Http\Resolver;
 use App\Utility\Utility;
 use GuzzleHttp\Client;
 use League\Flysystem\Filesystem;
@@ -13,6 +14,7 @@ class Downloader
 
     private $system;
     private $coursehunter;
+    private $resolver;
 
     /**
      * Dependencies Auto Injection
@@ -25,6 +27,7 @@ class Downloader
     {
         $this->system = new FilesystemController($filesystem);
         $this->coursehunter = new CoursehunterController($client);
+        $this->resolver = new Resolver($client);
     }
 
     public function start()
@@ -43,13 +46,15 @@ class Downloader
         if (! is_array($options['c']))
             $options['c'] = [$options['c']];
 
-        $onlineCourseEpisodes = $this->coursehunter->courseEpisodes($options['c'][0]);
+        $wantedCourse = $options['c'][0];
+
+        $onlineCourseEpisodes = $this->coursehunter->courseEpisodes($wantedCourse);
 
         Utility::box('Downloading');
 
-        foreach ($onlineCourseEpisodes as $episode) {
-            if (! in_array($episode['number'], $localCourses[$options['c'][0]])) {
-                // download
+        foreach ($onlineCourseEpisodes[$wantedCourse] as $episode) {
+            if (! in_array($episode['number'], $localCourses[$wantedCourse])) {
+                $this->resolver->download($episode, $wantedCourse);
             }
         }
     }

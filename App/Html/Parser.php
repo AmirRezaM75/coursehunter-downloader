@@ -18,7 +18,7 @@ class Parser
 
             return [
                 'number' => intval($index) + 1,
-                'name' => $name,
+                'name' => trim($name),
                 'link' => $link,
             ];
         });
