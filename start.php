@@ -10,3 +10,12 @@
 |
 */
 require __DIR__.'/vendor/autoload.php';
+
+
+$downloader = require_once __DIR__.'/bootstrap.php';
+
+try {
+    $downloader->start();
+} catch (Exception $exception) {
+    echo $exception->getMessage();
+}
