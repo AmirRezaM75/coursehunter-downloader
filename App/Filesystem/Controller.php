@@ -2,6 +2,7 @@
 
 namespace App\Filesystem;
 
+use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 
 class Controller
@@ -20,7 +21,6 @@ class Controller
      */
     public function courses()
     {
-        //TODO: cache result
         $contents = $this->filesystem->listContents(null, true);
 
         $array = [];
@@ -43,5 +43,19 @@ class Controller
         if (! $this->filesystem->has($folder)) {
             $this->filesystem->createDir($folder);
         }
+    }
+
+    /**
+     *  Write items into cache
+     *
+     *  @param string $path
+     *  @param array $data
+     */
+    public function cacheItems($path, $data)
+    {
+        $adapter = new Local(dirname($path));
+
+        (new FileSystem($adapter))
+            ->put('items.php', '<?php return '.var_export($data, true).';'.PHP_EOL);
     }
 }

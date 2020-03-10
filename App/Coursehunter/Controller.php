@@ -25,7 +25,8 @@ class Controller
         return $array;
     }
 
-    public function getCourseHTML($course) {
+    public function getCourseHTML($course)
+    {
         $http = $this->client->get(BASE_URL . DIRECTORY_SEPARATOR . 'course/' . $course);
 
         // TODO: handle 404 errors
