@@ -35,19 +35,25 @@ class Downloader
 
     public function start()
     {
+        $options = $this->standardizeOptions();
+
+        if (is_null($options['course'])) {
+            Utility::write('Course option (-c) is not provided');
+            die;
+        }
+
         Utility::box('Start collecting local data');
 
         $localCourses = $this->system->courses();
 
-        if (count($options = getopt("c:")) == 0) {
-            Utility::write('No options provided');
-            die;
+        if (! is_null($options['username']) and ! is_null($options['password'])) {
+            Utility::box('Authenticating');
+
+            if (! $this->coursehunter->authenticate($options['username'], $options['password']))
+                throw new \LogicException('Something is wrong with your authentication credentials');
+
+            Utility::write('Successful');
         }
-
-        if (! is_array($options['c']))
-            $options['c'] = [$options['c']];
-
-        $wantedCourse = $options['c'][0];
 
         Utility::box('Start collecting online data');
 
@@ -57,19 +63,19 @@ class Downloader
             $onlineCourseEpisodes = require $cache;
         }
 
-        if (! isset($onlineCourseEpisodes[$wantedCourse])) {
-            $onlineCourseEpisodes = $this->coursehunter->courseEpisodes($wantedCourse);
+        if (! isset($onlineCourseEpisodes[$options['course']])) {
+            $onlineCourseEpisodes = $this->coursehunter->courseEpisodes($options['course']);
 
             $this->system->cacheItems($this->basePath('Cache/items.php'), $onlineCourseEpisodes);
         }
 
-        $this->system->createFolderIfNotExists($wantedCourse);
+        $this->system->createFolderIfNotExists($options['course']);
 
         Utility::box('Downloading');
 
-        foreach ($onlineCourseEpisodes[$wantedCourse] as $episode) {
-            if (! isset($localCourses[$wantedCourse]) or ! in_array($episode['number'], $localCourses[$wantedCourse])) {
-                $this->resolver->download($episode, $wantedCourse);
+        foreach ($onlineCourseEpisodes[$options['course']] as $episode) {
+            if (! isset($localCourses[$options['course']]) or ! in_array($episode['number'], $localCourses[$options['course']])) {
+                $this->resolver->download($episode, $options['course']);
             }
         }
     }
@@ -92,5 +98,23 @@ class Downloader
      */
     private function getCachedItemsPath() {
         return $this->basePath('Cache/items.php');
+    }
+
+    /**
+     * Get all arguments from command line and make it more readable
+     *
+     * @return array
+     */
+    private function standardizeOptions() {
+        $arguments = 'c:';
+        $arguments .= 'u:';
+        $arguments .= 'p:';
+        $options = getopt($arguments);
+
+        return [
+            'course' => $options['c'] ?? null,
+            'username' => $options['u'] ?? null,
+            'password' => $options['p'] ?? null,
+        ];
     }
 }
