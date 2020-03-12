@@ -46,15 +46,6 @@ class Downloader
 
         $localCourses = $this->system->courses();
 
-        if (! is_null($options['username']) and ! is_null($options['password'])) {
-            Utility::box('Authenticating');
-
-            if (! $this->coursehunter->authenticate($options['username'], $options['password']))
-                throw new \LogicException('Something is wrong with your authentication credentials');
-
-            Utility::write('Successful');
-        }
-
         Utility::box('Start collecting online data');
 
         // First we will see if we have a cache file. If we do, we load items from that file
@@ -64,9 +55,21 @@ class Downloader
         }
 
         if (! isset($onlineCourseEpisodes[$options['course']])) {
+
+            if (! is_null($options['username']) and ! is_null($options['password'])) {
+                Utility::write('Authenticating ...');
+
+                if (! $this->coursehunter->authenticate($options['username'], $options['password']))
+                    throw new \LogicException('Something is wrong with your authentication credentials');
+            }
+
+            Utility::write('Crawling page ...');
+
             $onlineCourseEpisodes = $this->coursehunter->courseEpisodes($options['course']);
 
             $this->system->cacheItems($this->basePath('Cache/items.php'), $onlineCourseEpisodes);
+        } else {
+            Utility::write('Reading from cache file ...');
         }
 
         $this->system->createFolderIfNotExists($options['course']);
