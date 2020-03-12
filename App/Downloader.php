@@ -115,7 +115,10 @@ class Downloader
         $options = getopt($arguments);
 
         return [
-            'course' => $options['c'] ?? null,
+            'course' =>
+                isset($options['c'])
+                ? trim(str_replace(BASE_URL . '/course/', '', $options['c']), '/')
+                : null,
             'username' => $options['u'] ?? null,
             'password' => $options['p'] ?? null,
         ];
