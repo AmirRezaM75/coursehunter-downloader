@@ -55,10 +55,12 @@ class Controller
     {
         $adapter = new Local(dirname($path));
 
+        $name = str_replace($adapter->getPathPrefix(), '', $path);
+
         if (file_exists($path))
             $data = array_merge($data, require $path);
 
         (new FileSystem($adapter))
-            ->put('items.php', '<?php return '.var_export($data, true).';'.PHP_EOL);
+            ->put($name, '<?php return '.var_export($data, true).';'.PHP_EOL);
     }
 }

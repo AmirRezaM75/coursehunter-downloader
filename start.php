@@ -1,5 +1,7 @@
 <?php
 
+define('BASE_URL', 'https://coursehunter.net');
+
 /*
 |--------------------------------------------------------------------------
 | Register The Auto Loader
@@ -9,13 +11,22 @@
 | we don't have to worry about manual loading any of our classes.
 |
 */
+
 require __DIR__.'/vendor/autoload.php';
 
 
-$downloader = require_once __DIR__.'/bootstrap.php';
+/*
+|--------------------------------------------------------------------------
+| Application Factory
+|--------------------------------------------------------------------------
+| We use Downloader or Scrapper class based on your console arguments
+|
+*/
+
+$application = require_once __DIR__.'/app.php';
 
 try {
-    $downloader->start();
+    $application->start();
 } catch (Exception $exception) {
-    echo $exception->getMessage();
+    echo $exception->getMessage() . PHP_EOL;
 }

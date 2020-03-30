@@ -17,10 +17,9 @@ class Controller
     private $client;
     private $cookie;
 
-    public function __construct(Client $client, Filesystem $filesystem)
+    public function __construct(Client $client)
     {
         $this->client = $client;
-        $this->system = new FilesystemController($filesystem);
         $this->cookie = new CookieJar();
     }
 
@@ -80,6 +79,7 @@ class Controller
 
             foreach ($courses as $courseSlug) {
                 Utility::write($courseSlug);
+
                 $courseHTML = $this->getCourseHTML($courseSlug);
 
                 $basicInformation[$courseSlug] = Parser::getBasicInformation($courseHTML);
@@ -103,7 +103,7 @@ class Controller
      * @param int $page
      * @return string
      */
-        private function getArchiveHTML($page = 1)
+    public function getArchiveHTML($page = 1)
     {
         return $this->client->get(BASE_URL . '/archive?page=' . $page, [
             'cookies' => $this->cookie,
@@ -119,7 +119,7 @@ class Controller
      * @return string
      * @throws CourseNotFoundException
      */
-    private function getCourseHTML($course)
+    public function getCourseHTML($course)
     {
         $http = $this->client->get(BASE_URL . DIRECTORY_SEPARATOR . 'course/' . $course, [
             'cookies' => $this->cookie,
