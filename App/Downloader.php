@@ -27,7 +27,7 @@ class Downloader
     public function __construct(Client $client, Filesystem $filesystem)
     {
         $this->basePath = rtrim(dirname(__DIR__), '\/');
-        $this->coursehunter = new CoursehunterController($client);
+        $this->coursehunter = new CoursehunterController($client, $filesystem);
         $this->system = new FilesystemController($filesystem);
         $this->resolver = new Resolver($client);
     }
@@ -56,11 +56,16 @@ class Downloader
 
         if (! isset($onlineCourseEpisodes[$options['course']])) {
 
-            if (! is_null($options['username']) and ! is_null($options['password'])) {
+            if (! is_null($options['email']) and ! is_null($options['password'])) {
                 Utility::write('Authenticating ...');
 
-                if (! $this->coursehunter->authenticate($options['username'], $options['password']))
+                if (! $this->coursehunter->authenticate($options['email'], $options['password']))
                     throw new \LogicException('Something is wrong with your authentication credentials');
+            }
+
+            if (! is_null($options['scrap'])) {
+                $this->coursehunter->scrapSite($this->basePath('Cache/all.php'));
+                die;
             }
 
             Utility::write('Crawling page ...');
@@ -110,17 +115,27 @@ class Downloader
      */
     private function standardizeOptions() {
         $arguments = 'c:';
-        $arguments .= 'u:';
+        $arguments .= 'e:';
         $arguments .= 'p:';
-        $options = getopt($arguments);
+        $arguments .= '';
+
+        $longOptions = [
+            'course:',
+            'email:',
+            'password:',
+            'scrap'
+        ];
+
+        $options = getopt($arguments, $longOptions);
 
         return [
             'course' =>
                 isset($options['c'])
                 ? trim(str_replace(BASE_URL . '/course/', '', $options['c']), '/')
                 : null,
-            'username' => $options['u'] ?? null,
+            'email' => $options['e'] ?? null,
             'password' => $options['p'] ?? null,
+            'scrap' => $options['scrap'] ?? null
         ];
     }
 }

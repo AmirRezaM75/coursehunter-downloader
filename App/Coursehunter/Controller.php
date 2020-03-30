@@ -4,9 +4,12 @@ namespace App\Coursehunter;
 
 use App\Exceptions\CourseNotFoundException;
 use App\Exceptions\SubscriptionNotActiveException;
+use App\Filesystem\Controller as FilesystemController;
 use App\Html\Parser;
+use App\Utility\Utility;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
+use League\Flysystem\Filesystem;
 
 class Controller
 {
@@ -14,9 +17,10 @@ class Controller
     private $client;
     private $cookie;
 
-    public function __construct(Client $client)
+    public function __construct(Client $client, Filesystem $filesystem)
     {
         $this->client = $client;
+        $this->system = new FilesystemController($filesystem);
         $this->cookie = new CookieJar();
     }
 
@@ -61,7 +65,55 @@ class Controller
         return $array;
     }
 
-    /** Get HTML of the given course
+    public function scrapSite($path)
+    {
+        $basicInformation = [];
+
+        $lastPage = $this->getLastPage();
+
+        for ($page = 1; $page <= $lastPage; $page++) {
+            Utility::write("page {$page} / $lastPage");
+
+            $html = $this->getArchiveHTML($page);
+
+            $courses = Parser::getCourseNamesURL($html);
+
+            foreach ($courses as $courseSlug) {
+                Utility::write($courseSlug);
+                $courseHTML = $this->getCourseHTML($courseSlug);
+
+                $basicInformation[$courseSlug] = Parser::getBasicInformation($courseHTML);
+
+                $this->system->cacheItems($path, $basicInformation);
+            }
+        }
+    }
+
+    public function getLastPage()
+    {
+        $html = $this->getArchiveHTML();
+
+        return Parser::getLastPage($html);
+    }
+
+
+    /**
+     * Get HTML of the archive page
+     *
+     * @param int $page
+     * @return string
+     */
+        private function getArchiveHTML($page = 1)
+    {
+        return $this->client->get(BASE_URL . '/archive?page=' . $page, [
+            'cookies' => $this->cookie,
+            'verify' => false,
+            'allow_redirects' => false
+        ])->getBody()->getContents();
+    }
+
+    /**
+     * Get HTML of the given course
      * @param string $course
      *
      * @return string
