@@ -17,13 +17,17 @@ class Resolver
         $this->client = $client;
     }
 
-    public function download($episode, $courseName)
+    public function download($information)
     {
-        $number = sprintf("%03d", $episode['number']);
+        $length = $information['courseItems'] !== 0 ? floor(log10($information['courseItems']) + 1) : 1;
 
-        $saveTo = 'Downloads/' . $courseName . DIRECTORY_SEPARATOR . $number . ' - ' . $episode['name'] . '.mp4';
-        Utility::write(sprintf("Download started: %s ....", $episode['name']));
-        $this->downloadFromURL($episode['link'], $saveTo);
+        $number = sprintf("%0{$length}d", $information['episodeNumber']);
+
+        $saveTo = 'Downloads/' . $information['courseName'] . DIRECTORY_SEPARATOR . $number . '.mp4';
+
+        Utility::write(sprintf("Download started: %s / %s ....", $information['episodeNumber'], $information['courseItems']));
+
+        $this->downloadFromURL($information['episodeLink'], $saveTo);
     }
 
     private function downloadFromURL($url, $output) {

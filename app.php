@@ -14,16 +14,15 @@ $adapter = new Local(__DIR__.'/Downloads');
 
 $filesystem = new FileSystem($adapter);
 
-$basePath = rtrim(__DIR__, '\/');
-
 if (is_null($options['scrap']))
-    return new Downloader($client, $filesystem, $options, $basePath);
+    return new Downloader($client, $filesystem, $options);
 
-return new Scrapper($client, $filesystem, $options, $basePath);
+return new Scrapper($client, $filesystem, $options);
 
 
 /**
  * Get all arguments from command line and make it more readable
+ * and append application base path
  *
  * @return array
  */
@@ -49,6 +48,7 @@ function standardizeOptions() {
                 : null,
         'email' => $options['e'] ?? null,
         'password' => $options['p'] ?? null,
-        'scrap' => $options['scrap'] ?? null
+        'scrap' => $options['scrap'] ?? null,
+        'basePath' => rtrim(__DIR__, '\/')
     ];
 }

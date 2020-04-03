@@ -14,9 +14,10 @@ use GuzzleHttp\Client;
 
 class Application
 {
-    protected $system;
+    protected $filesystem;
     protected $coursehunter;
     protected $resolver;
+    protected $options;
     private $basePath;
 
     /**
@@ -24,13 +25,14 @@ class Application
      *
      * @param Client $client
      * @param Filesystem $filesystem
-     * @param string $basePath
+     * @param array $options
      */
-    public function __construct(Client $client, Filesystem $filesystem, $basePath)
+    public function __construct(Client $client, Filesystem $filesystem, array $options)
     {
-        $this->basePath = $basePath;
+        $this->options = $options;
+        $this->basePath = $options['basePath'];
         $this->coursehunter = new CoursehunterController($client);
-        $this->system = new FilesystemController($filesystem);
+        $this->filesystem = new FilesystemController($filesystem);
         $this->resolver = new Resolver($client);
     }
 

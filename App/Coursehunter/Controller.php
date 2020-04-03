@@ -4,12 +4,10 @@ namespace App\Coursehunter;
 
 use App\Exceptions\CourseNotFoundException;
 use App\Exceptions\SubscriptionNotActiveException;
-use App\Filesystem\Controller as FilesystemController;
 use App\Html\Parser;
 use App\Utility\Utility;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
-use League\Flysystem\Filesystem;
 
 class Controller
 {
@@ -59,34 +57,9 @@ class Controller
     {
         $html = $this->getCourseHTML($course);
 
-        $array[$course] = Parser::getEpisodesArray($html);
+        $array[$course] = Parser::getBasicInformation($html);
 
         return $array;
-    }
-
-    public function scrapSite($path)
-    {
-        $basicInformation = [];
-
-        $lastPage = $this->getLastPage();
-
-        for ($page = 1; $page <= $lastPage; $page++) {
-            Utility::write("page {$page} / $lastPage");
-
-            $html = $this->getArchiveHTML($page);
-
-            $courses = Parser::getCourseNamesURL($html);
-
-            foreach ($courses as $courseSlug) {
-                Utility::write($courseSlug);
-
-                $courseHTML = $this->getCourseHTML($courseSlug);
-
-                $basicInformation[$courseSlug] = Parser::getBasicInformation($courseHTML);
-
-                $this->system->cacheItems($path, $basicInformation);
-            }
-        }
     }
 
     public function getLastPage()

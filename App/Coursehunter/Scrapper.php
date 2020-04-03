@@ -6,27 +6,9 @@ namespace App\Coursehunter;
 
 use App\Html\Parser;
 use App\Utility\Utility;
-use GuzzleHttp\Client;
-use League\Flysystem\Filesystem;
 
 class Scrapper extends Application implements ApplicationInterface
 {
-
-    private $options;
-
-    /**
-     * @param Client $client
-     * @param Filesystem $filesystem
-     * @param array $options
-     * @param string $basePath
-     */
-    public function __construct(Client $client, Filesystem $filesystem, array $options, $basePath)
-    {
-        parent::__construct($client, $filesystem, $basePath);
-
-        $this->options = $options;
-    }
-
     public function start()
     {
         if (file_exists($path = $this->getCachedItemsPath())) {
@@ -58,7 +40,7 @@ class Scrapper extends Application implements ApplicationInterface
 
                 $basicInformation[$slug] = Parser::getBasicInformation($courseHTML);
 
-                $this->system->cacheItems($this->getCachedItemsPath(), $basicInformation);
+                $this->filesystem->cacheItems($this->getCachedItemsPath(), $basicInformation);
             }
         }
     }
