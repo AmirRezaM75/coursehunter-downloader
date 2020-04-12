@@ -30,7 +30,10 @@ class Controller
 
             $course = $content['dirname'];
 
-            $episode = (int) substr($content['filename'], 0, strpos($content['filename'], '-'));
+            if ($position = strpos($content['filename'], '-') === false)
+                $episode = (int) $content['filename'];
+            else
+                $episode = (int) substr($content['filename'], 0, $position);
 
             $array[$course][] = $episode;
         }
